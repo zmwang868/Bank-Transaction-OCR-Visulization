@@ -62,8 +62,8 @@ export default function LeftPanel(props: Props) {
 
     const fileId =
         state.status === "uploaded" ||
-        state.status === "extracting" ||
-        state.status === "done"
+            state.status === "extracting" ||
+            state.status === "done"
             ? state.fileId
             : null;
 
@@ -216,8 +216,8 @@ export default function LeftPanel(props: Props) {
                                     state.status === "idle"
                                         ? "default"
                                         : state.status === "selected"
-                                        ? "blue"
-                                        : "green"
+                                            ? "blue"
+                                            : "green"
                                 }
                             >
                                 {state.status === "idle" && "未选择"}
