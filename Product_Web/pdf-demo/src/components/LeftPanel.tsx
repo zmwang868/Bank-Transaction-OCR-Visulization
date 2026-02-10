@@ -44,10 +44,12 @@ async function extractPdfMock(fileId: string): Promise<{ jobId: string }> {
 
 type Props = {
     onFileSelected?: (file: File | null) => void;
+    onUploaded?: () => void;
+    onReset?: () => void;
 };
 
 export default function LeftPanel(props: Props) {
-    const { onFileSelected } = props;
+    const { onFileSelected, onUploaded, onReset } = props;
 
     const [state, setState] = useState<UploadState>({ status: "idle" });
 
@@ -122,6 +124,7 @@ export default function LeftPanel(props: Props) {
                 file,
                 fileId: res.fileId,
             });
+            onUploaded?.();
         } catch (error) {
             message.error("上传失败，请重试");
 
@@ -171,6 +174,7 @@ export default function LeftPanel(props: Props) {
     function resetAll(): void {
         setState({ status: "idle" });
         onFileSelected?.(null);
+        onReset?.();
     }
 
     return (
