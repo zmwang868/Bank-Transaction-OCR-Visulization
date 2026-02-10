@@ -3,12 +3,10 @@ import { Card, Typography, Spin } from "antd";
 import { getDocument, GlobalWorkerOptions } from "pdfjs-dist";
 import type { PDFDocumentProxy } from "pdfjs-dist";
 
-const { Text } = Typography;
+import pdfWorkerUrl from "pdfjs-dist/build/pdf.worker.min?url";
 
-GlobalWorkerOptions.workerSrc = new URL(
-    "pdfjs-dist/build/pdf.worker.min.js",
-    import.meta.url
-).toString();
+GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
+const { Text } = Typography;
 
 type Props = {
     file: File | null;
@@ -30,24 +28,36 @@ export default function PdfCenterPanel(props: Props) {
 
             container.innerHTML = "";
 
-            const scale = 1.3;
+            const dpr = window.devicePixelRatio || 1;
+
+            const wrapperPadding = 12;
+
+            const availableWidth = Math.max(320, container.clientWidth - wrapperPadding * 2);
 
             for (let pageNum = 1; pageNum <= pdf.numPages; pageNum += 1) {
                 if (cancelled) return;
 
                 const page = await pdf.getPage(pageNum);
-                const viewport = page.getViewport({ scale });
+
+                const viewport1 = page.getViewport({ scale: 1 });
+
+                const fitScale = availableWidth / viewport1.width;
+
+                const viewport = page.getViewport({ scale: fitScale });
 
                 const pageWrapper = document.createElement("div");
-                pageWrapper.style.padding = "12px";
+                pageWrapper.style.padding = `${wrapperPadding}px`;
                 pageWrapper.style.display = "flex";
                 pageWrapper.style.justifyContent = "center";
 
                 const canvas = document.createElement("canvas");
                 const ctx = canvas.getContext("2d");
 
-                canvas.width = Math.floor(viewport.width);
-                canvas.height = Math.floor(viewport.height);
+                canvas.style.width = `${Math.floor(viewport.width)}px`;
+                canvas.style.height = `${Math.floor(viewport.height)}px`;
+
+                canvas.width = Math.floor(viewport.width * dpr);
+                canvas.height = Math.floor(viewport.height * dpr);
 
                 canvas.style.background = "white";
                 canvas.style.borderRadius = "10px";
@@ -57,6 +67,8 @@ export default function PdfCenterPanel(props: Props) {
                 container.appendChild(pageWrapper);
 
                 if (!ctx) continue;
+
+                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
                 await page.render({
                     canvas: canvas,
@@ -106,14 +118,16 @@ export default function PdfCenterPanel(props: Props) {
     return (
         <Card
             style={{
+                height: "100%",
                 flex: 1,
-                minHeight: 700,
                 borderRadius: 12,
                 overflow: "hidden",
             }}
-            bodyStyle={{
-                padding: 0,
-                height: "100%",
+            styles={{
+                body: {
+                    padding: 0,
+                    height: "100%",
+                },
             }}
         >
             <div
