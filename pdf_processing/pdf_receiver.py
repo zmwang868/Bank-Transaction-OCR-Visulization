@@ -18,8 +18,8 @@ if not os.path.exists(STATIC_FOLDER):
     os.makedirs(STATIC_FOLDER)
 
 # Configure CORS
-# Allow requests from http://localhost:3000, https://localhost:3000, http://localhost:5173, and http://localhost:5174
-CORS(app, resources={r"/api/*": {"origins": ["http://localhost:3000", "https://localhost:3000", "http://localhost:5173", "http://localhost:5174"]}})
+# Allow requests from http://localhost:3000, https://localhost:3000, and http://localhost:5173
+CORS(app, resources={r"/api/*": {"origins": ["http://localhost:3000", "https://localhost:3000", "http://localhost:5173"]}})
 
 def generate_mock_ocr_data(width, height):
     """Generates mock OCR text and bounding boxes."""
